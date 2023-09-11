@@ -41,24 +41,27 @@ iris = datasets.load_iris()
 #Las credenciales de la base de datos
 
 
-
 DATABASE_CONFIG = {"user": "postgres",
                    "password": "admin1234",
                    "host": "db-test.ciwxv2n0vdmm.us-east-1.rds.amazonaws.com",
                    "port": "5432",
-                   "database": "testy"}
+                   "database": "predictions"}
+
+
+# Creo la conexion
+engine2 = create_engine(f"postgresql://{DATABASE_CONFIG['user']}:{DATABASE_CONFIG['password']}@{DATABASE_CONFIG['host']}:{DATABASE_CONFIG['port']}")
 
 
 # Creo la conexion
 
 
 
-try:
-    engine = create_engine(f"postgresql://{DATABASE_CONFIG['user']}:{DATABASE_CONFIG['password']}@{DATABASE_CONFIG['host']}:{DATABASE_CONFIG['port']}/{DATABASE_CONFIG['database']}")
-    engine.connect()
-    print("Connected to the database")
-except Exception as e:
-    print(f"Error connecting to the database: {str(e)}")
+# try:
+#     engine = create_engine(f"postgresql://{DATABASE_CONFIG['user']}:{DATABASE_CONFIG['password']}@{DATABASE_CONFIG['host']}:{DATABASE_CONFIG['port']}/{DATABASE_CONFIG['database']}")
+#     engine.connect()
+#     print("Connected to the database")
+# except Exception as e:
+#     print(f"Error connecting to the database: {str(e)}")
 
 
 
@@ -106,7 +109,7 @@ def predictor_v0():
 
 
         upload = pd.DataFrame([upload])
-        upload.to_sql('predictions', con=engine, if_exists='append', index=False)
+        upload.to_sql('predictions', con=engine2, if_exists='append', index=False)
 
 
         return  jsonify({"prediction": prediction})
@@ -136,7 +139,7 @@ def predictor_v1():
 
 
         upload = pd.DataFrame([upload])
-        upload.to_sql('predictions', con=engine, if_exists='append', index=False)
+        upload.to_sql('predictions', con=engine2, if_exists='append', index=False)
 
 
         return  jsonify({"prediction": prediction})
@@ -146,7 +149,7 @@ def predictor_v1():
 @app.route("/api/v0/predictions/get_all", methods=["GET"])
 def return_all():
 
-    todo = pd.read_sql_query(f"select * from predictions", con=engine).to_dict("records")
+    todo = pd.read_sql_query(f"select * from predictions", con=engine2).to_dict("records")
     
     return jsonify(todo)
 
@@ -207,7 +210,7 @@ def predictor_v1_norma():
 
 
         upload = pd.DataFrame([upload])
-        upload.to_sql('predictions', con=engine, if_exists='append', index=False)
+        upload.to_sql('predictions', con=engine2, if_exists='append', index=False)
 
 
         return  jsonify({"prediction": prediction})
@@ -244,7 +247,7 @@ def predictor_bin():
 
 
         upload = pd.DataFrame([upload])
-        upload.to_sql('predictions', con=engine, if_exists='append', index=False)
+        upload.to_sql('predictions', con=engine2, if_exists='append', index=False)
         
         return  jsonify({"prediction": prediction})
 
@@ -253,10 +256,10 @@ def predictor_bin():
 def retrain():
 
     #Descargamos los datos de la base de datos para añadir al retrain
-    datos_retrain = pd.read_sql_query(f"select * from predictions", con=engine)
+    datos_retrain = pd.read_sql_query(f"select * from predictions", con=engine2)
 
 
-    comparador = pd.read_sql_query(f"select * from compare", con=engine)
+    comparador = pd.read_sql_query(f"select * from compare", con=engine2)
     if len(comparador) == len(datos_retrain):
         return "Tu modelo ya esta entrenado con los datos más recientes"
     else:
@@ -271,7 +274,7 @@ def retrain():
         upload = df.drop(["_merge"],axis=1) 
 
         #Actualizamos la tabla de comparaciones
-        upload.to_sql('compare', con=engine, if_exists='append', index=False)
+        upload.to_sql('compare', con=engine2, if_exists='append', index=False)
 
         # Hacemos el drop de las columnas que no nos sirven para el train
         df2 = df.drop(["id","timestamp",	"_merge"],axis=1)
@@ -284,7 +287,7 @@ def retrain():
         df2['prediction'].replace(flowers, inplace=True)
 
         # Cogemos los datos de entrenamiento que ya tenemos
-        train_original = pd.read_sql_query(f"select * from datos_train", con=engine)
+        train_original = pd.read_sql_query(f"select * from datos_train", con=engine2)
 
         #Cambiamos el tipo de la columna prediction para que coincida con el de df2
         train_original["prediction"] = train_original["prediction"].astype("int64")
@@ -313,7 +316,7 @@ def retrain():
         pickle.dump(model, open('iris_model_retrain.pkl', 'wb'))
 
         #Actualizamos la tabla con los datos de train
-        df2.to_sql('datos_train', con=engine, if_exists='append', index=False)
+        df2.to_sql('datos_train', con=engine2, if_exists='append', index=False)
 
         return "Modelo actualizado"
 
