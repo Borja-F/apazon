@@ -50,8 +50,15 @@ DATABASE_CONFIG = {"user": "postgres",
 
 
 # Creo la conexion
-engine = create_engine(f"postgresql://{DATABASE_CONFIG['user']}:{DATABASE_CONFIG['password']}@{DATABASE_CONFIG['host']}:{DATABASE_CONFIG['port']}")
 
+
+
+try:
+    engine = create_engine(f"postgresql://{DATABASE_CONFIG['user']}:{DATABASE_CONFIG['password']}@{DATABASE_CONFIG['host']}:{DATABASE_CONFIG['port']}/{DATABASE_CONFIG['database']}")
+    engine.connect()
+    print("Connected to the database")
+except Exception as e:
+    print(f"Error connecting to the database: {str(e)}")
 
 
 
@@ -311,4 +318,4 @@ def retrain():
         return "Modelo actualizado"
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5002)
+    app.run(debug=True)
