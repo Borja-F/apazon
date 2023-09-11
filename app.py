@@ -45,7 +45,7 @@ DATABASE_CONFIG = {"user": "postgres",
                    "password": "admin1234",
                    "host": "db-test.ciwxv2n0vdmm.us-east-1.rds.amazonaws.com",
                    "port": "5432",
-                   "database": "predictions"}
+                   "database": "public.predictions"}
 
 
 # Creo la conexion
