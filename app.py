@@ -149,7 +149,7 @@ def predictor_v1():
 @app.route("/api/v0/predictions/get_all", methods=["GET"])
 def return_all():
 
-    todo = pd.read_sql_query(f"select * from predictions", con=engine2).to_dict("records")
+    todo = pd.read_sql_query(f"select * from public.predictions", con=engine2).to_dict("records")
     
     return jsonify(todo)
 
