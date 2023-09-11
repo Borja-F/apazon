@@ -39,16 +39,18 @@ app = Flask(__name__)
 iris = datasets.load_iris()
 
 #Las credenciales de la base de datos
+
+
+
 DATABASE_CONFIG = {"user": "postgres",
                    "password": "admin1234",
-                   "host": "database-1.ciwxv2n0vdmm.us-east-1.rds.amazonaws.com",
+                   "host": "db-test.ciwxv2n0vdmm.us-east-1.rds.amazonaws.com",
                    "port": "5432",
-                   "database": "predictions"}
+                   "database": "testy"}
 
 
 # Creo la conexion
 engine = create_engine(f"postgresql://{DATABASE_CONFIG['user']}:{DATABASE_CONFIG['password']}@{DATABASE_CONFIG['host']}:{DATABASE_CONFIG['port']}")
-
 
 
 
